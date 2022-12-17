@@ -1,4 +1,6 @@
 ﻿using _2c2c_test.Models;
+using _2c2c_test.Repositories;
+using _2c2c_test.TransactionWriters;
 using _2c2p_test.FileReaders;
 using _2c2p_test.Models;
 using Microsoft.AspNetCore.Http;
@@ -15,10 +17,11 @@ namespace _2c2c_test.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private readonly TransactionRepository transactionRepository;
+        public HomeController(ILogger<HomeController> logger, TransactionRepository transactionRepository)
         {
             _logger = logger;
+            this.transactionRepository = transactionRepository;
         }
 
         public IActionResult Index()
@@ -50,9 +53,20 @@ namespace _2c2c_test.Controllers
                     break;
                 default: return RedirectToAction("Index");
             }
-            List<TransactionModel> transactions = fileReader.ReadFile(file);
-            
-
+            List<string> errors = null;
+            List<TransactionModel> transactions = fileReader.ReadFile(out errors ,file);
+            if (errors.Count>0)
+            {
+                Response.StatusCode = 400;
+                string error="";
+                foreach(string er in errors)
+                {
+                    error += er+"; ";
+                }
+                return Content(error);
+            }
+            TransactionWriter transactionWriter = new TransactionWriter(transactionRepository);
+            transactionWriter.WriteToDB(transactions);
             return RedirectToAction("Index");
         }
     }

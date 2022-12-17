@@ -9,30 +9,39 @@ namespace _2c2p_test.FileReaders
 {
     internal class XMLFileReader : IFileReader
     {
-        public List<TransactionModel> ReadFile(IFormFile file)
+        public List<TransactionModel> ReadFile(out List<string> errors,IFormFile file)
         {
+            errors = new List<string>();
             List<TransactionModel> result = new List<TransactionModel>();
             XmlDocument xDoc = new XmlDocument();
             xDoc.LoadXml(new StreamReader(file.OpenReadStream()).ReadToEnd());
             var xRoot = xDoc.DocumentElement;
             if (xRoot != null)
-            {
+            { int i = 0;
                 foreach (XmlElement xnode in xRoot)
                 {
-                    string innerTransactionID = xnode.Attributes.GetNamedItem("id").Value;
-                    DateTime transactionDate = DateTime.Parse(xnode.ChildNodes[0].InnerText);
-                    float amount = float.Parse(xnode.ChildNodes[1].ChildNodes[0].InnerText.Replace(".",","));
-                    string currency = xnode.ChildNodes[1].ChildNodes[1].InnerText;
-                    TransactionStatusEnum transactionStatus = XMLTransactionStatusToNormal(xnode.ChildNodes[2].InnerText);
-                    result.Add(new TransactionModel
+                    i++;
+                    try
                     {
-                        InnerTransactionID = innerTransactionID,
-                        Amount = amount,
-                        Currency = currency,
-                        TransactionDate = transactionDate,
-                        TransactionStatus = transactionStatus
+                        string innerTransactionID = xnode.Attributes.GetNamedItem("id").Value;
+                        DateTime transactionDate = DateTime.Parse(xnode.ChildNodes[0].InnerText);
+                        float amount = float.Parse(xnode.ChildNodes[1].ChildNodes[0].InnerText.Replace(".", ","));
+                        string currency = xnode.ChildNodes[1].ChildNodes[1].InnerText;
+                        TransactionStatusEnum transactionStatus = XMLTransactionStatusToNormal(xnode.ChildNodes[2].InnerText);
+                        result.Add(new TransactionModel
+                        {
+                            InnerTransactionID = innerTransactionID,
+                            Amount = amount,
+                            Currency = currency,
+                            TransactionDate = transactionDate,
+                            TransactionStatus = transactionStatus
+                        }
+                        );
                     }
-                       );
+                    catch(Exception e)
+                    {
+                        errors.Add("an error occurred while processing " + i+ " entry");
+                    }
                 }
             }
             return result;

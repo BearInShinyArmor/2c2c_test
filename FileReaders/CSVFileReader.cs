@@ -8,8 +8,9 @@ namespace _2c2p_test.FileReaders
 {
     internal class CSVFileReader : IFileReader
     {
-        public List<TransactionModel> ReadFile(IFormFile file)
+        public List<TransactionModel> ReadFile(out List<string> errors,IFormFile file)
         {
+            errors = new List<string>();
             List<TransactionModel> result = new List<TransactionModel>();
             string str;
             var sr = new StreamReader(file.OpenReadStream());
@@ -17,18 +18,25 @@ namespace _2c2p_test.FileReaders
             while ((str = sr.ReadLine()) != null)
             {
                 i++;
-                var strs = str.Split(';');
-
-                TransactionModel tmp = new TransactionModel
+                try
                 {
-                    InnerTransactionID = strs[0],
-                    Amount = float.Parse(strs[1].Replace(",", "").Replace(".",",")),
-                    Currency = strs[2],
-                    TransactionDate = DateTime.Parse(strs[3]),
-                    TransactionStatus = CSVTransactionStatusToNormal(strs[4])
+                    var strs = str.Split(';');
 
-                };
-                result.Add(tmp);
+                    result.Add(new TransactionModel
+                    {
+                        InnerTransactionID = strs[0],
+                        Amount = float.Parse(strs[1].Replace(",", "").Replace(".", ",")),
+                        Currency = strs[2],
+                        TransactionDate = DateTime.Parse(strs[3]),
+                        TransactionStatus = CSVTransactionStatusToNormal(strs[4])
+
+                    }
+                    );
+                }
+                catch (Exception e)
+                {
+                    errors.Add("an error occurred while processing line " + i);
+                }
 
             }
             return result;

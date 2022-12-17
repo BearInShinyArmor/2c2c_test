@@ -7,6 +7,6 @@ namespace _2c2p_test.FileReaders
 {
     public interface IFileReader
     {
-        List<TransactionModel> ReadFile(IFormFile file);
+        List<TransactionModel> ReadFile(out List<string> errors, IFormFile file);
     }
 }

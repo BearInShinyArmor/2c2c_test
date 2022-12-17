@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=BEARLOGA-PC\\SQLEXPRESS;Database=2c2pTest;Trusted_Connection=True;MultipleActiveResultSets=true"
+  }
+}
