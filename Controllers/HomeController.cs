@@ -39,6 +39,7 @@ namespace _2c2c_test.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+        [RequestSizeLimit(1048576)]
         public IActionResult AddFile(IFormFile file)
         {
             string extention = file.FileName.Split(".").Last();
@@ -51,7 +52,8 @@ namespace _2c2c_test.Controllers
                 case "xml":
                     fileReader = new XMLFileReader();
                     break;
-                default: return RedirectToAction("Index");
+                default:
+                    return Content("Unknown format");
             }
             List<string> errors = null;
             List<TransactionModel> transactions = fileReader.ReadFile(out errors ,file);
@@ -67,7 +69,7 @@ namespace _2c2c_test.Controllers
             }
             TransactionWriter transactionWriter = new TransactionWriter(transactionRepository);
             transactionWriter.WriteToDB(transactions);
-            return RedirectToAction("Index");
+            return StatusCode(200);
         }
     }
 }

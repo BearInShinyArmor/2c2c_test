@@ -24,9 +24,11 @@ namespace _2c2p_test.FileReaders
                     try
                     {
                         string innerTransactionID = xnode.Attributes.GetNamedItem("id").Value;
+                        if (string.IsNullOrEmpty(innerTransactionID)) throw new Exception(" empty value");
                         DateTime transactionDate = DateTime.Parse(xnode.ChildNodes[0].InnerText);
                         float amount = float.Parse(xnode.ChildNodes[1].ChildNodes[0].InnerText.Replace(".", ","));
                         string currency = xnode.ChildNodes[1].ChildNodes[1].InnerText;
+                        if (string.IsNullOrEmpty(currency)) throw new Exception(" empty value");
                         TransactionStatusEnum transactionStatus = XMLTransactionStatusToNormal(xnode.ChildNodes[2].InnerText);
                         result.Add(new TransactionModel
                         {
@@ -40,7 +42,7 @@ namespace _2c2p_test.FileReaders
                     }
                     catch(Exception e)
                     {
-                        errors.Add("an error occurred while processing " + i+ " entry");
+                        errors.Add("an error occurred while processing " + i+ " entry"+e.Message);
                     }
                 }
             }

@@ -21,21 +21,28 @@ namespace _2c2p_test.FileReaders
                 try
                 {
                     var strs = str.Split(';');
-
-                    result.Add(new TransactionModel
+                    foreach(string st in strs)
                     {
+                        if (string.IsNullOrEmpty(st))
+                        {
+                            throw new Exception(" empty value");
+                        }
+                    }
+
+                    TransactionModel tmp= new TransactionModel { 
                         InnerTransactionID = strs[0],
                         Amount = float.Parse(strs[1].Replace(",", "").Replace(".", ",")),
                         Currency = strs[2],
                         TransactionDate = DateTime.Parse(strs[3]),
                         TransactionStatus = CSVTransactionStatusToNormal(strs[4])
 
-                    }
-                    );
+                    };
+                    
+                    result.Add(tmp);
                 }
                 catch (Exception e)
                 {
-                    errors.Add("an error occurred while processing line " + i);
+                    errors.Add("an error occurred while processing line " + i+e.Message);
                 }
 
             }
